@@ -1,5 +1,6 @@
 using System;
 using System.Console;
+using Nemerle.Collections;
 
 namespace Mal
 {
@@ -10,28 +11,34 @@ namespace Mal
 			str;
 		}
 
-        static Eval(ast: string, _env: string): string
-        {
-            ast;
-        }
-
-        static Print(exp: string): string
-        {
-            exp;
-        }
-
-        static Rep(str: string, env: string): string
-        {
-            Print(Eval(Read(str), env));
-        }
-
-		static Main(args: string[]): void
+		static Eval(ast: string, _env: string): string
 		{
-			def lineEdit = Mono.Terminal.LineEditor("Mal");
+			ast;
+		}
+
+		static Print(exp: string): string
+		{
+			exp;
+		}
+
+		static Rep(str: string, env: string): string
+		{
+			Print(Eval(Read(str), env));
+		}
+
+		static Main(args: array[string]): void
+		{
+			def raw = match (NList.FromArray(args))
+			{
+				| "--raw" :: _ => true
+				| _ => false
+			};
+
+			def console = ConsoleHelper(raw);
 
 			def repl() : void
 			{
-				def line = lineEdit.Edit("user> ", string.Empty);
+				def line = console.ReadLine("user> ");
 
 				match (line)
 				{

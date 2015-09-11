@@ -8,7 +8,7 @@ SOURCES_BASE = types.n
 SOURCES_LISP = env.n
 SOURCES = $(SOURCES_BASE) $(SOURCES_LISP)
 
-OTHER_SOURCES = getline.n
+OTHER_SOURCES = console.n
 
 #####################
 
@@ -22,11 +22,11 @@ FLAGS = $(if $(strip $(DEBUG)),-debug+,)
 
 all: step0_repl.exe
 
-%.exe: %.n mal.dll getline.dll
-	$(NCC) $(FLAGS) -r:mal.dll -r:getline.dll -out:$@ $<
+%.exe: %.n mal.dll
+	$(NCC) $(FLAGS) -r:mal.dll -out:$@ $<
 
-mal.dll: $(LIB_SRCS)
-	$(NCC) $(FLAGS) -target:library $+ -out:$@
+mal.dll: $(LIB_SRCS) getline.dll
+	$(NCC) $(FLAGS) -target:library -r:getline.dll $(filter-out getline.dll, $+) -out:$@
 
 getline.dll: getline.cs
 	$(NCC) $(FLAGS) -target:library -nowarn:10001 -nowarn:10003 \

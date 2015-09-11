@@ -1,0 +1,31 @@
+﻿using System.Console;
+using Mono.Terminal;
+
+namespace Mal
+{
+	public class ConsoleHelper
+	{
+		public this(raw: bool)
+		{
+			readLine = match (raw)
+			{
+				| true => fun (p) {
+					Write(p);
+					ReadLine()
+				}
+				| false => fun (p) {
+					lineEdit.Edit(p, string.Empty)
+				}
+			}
+		}
+
+		private mutable lineEdit = LineEditor("Mal");
+
+		private mutable readLine : string -> string;
+
+		public ReadLine : string -> string
+		{
+			get { readLine }
+		} 
+	}
+}
