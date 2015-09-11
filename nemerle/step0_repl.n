@@ -1,6 +1,5 @@
 using System;
 using System.Console;
-using Nemerle.Imperative;
 
 namespace Mal
 {
@@ -26,19 +25,23 @@ namespace Mal
             Print(Eval(Read(str), env));
         }
 
-		static Main(): void
+		static Main(args: string[]): void
 		{
-			while (true)
+			def lineEdit = Mono.Terminal.LineEditor("Mal");
+
+			def repl() : void
 			{
-				Write("user> ");
-				def line = ReadLine();
+				def line = lineEdit.Edit("user> ", string.Empty);
+
 				match (line)
 				{
-					| null => break
-					| "" => continue
-					| _ => WriteLine(Rep(line, null))
+					| null => {}
+					| ""   => repl()
+					| _    => WriteLine(Rep(line, null)); repl()
 				}
 			}
+
+			repl()
 		}
 	}
 }
