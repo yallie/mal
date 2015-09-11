@@ -1,0 +1,44 @@
+using System;
+using System.Console;
+using Nemerle.Imperative;
+
+namespace Mal
+{
+	public class Step0_Repl
+	{
+		static Read(str: string): string
+		{
+			str;
+		}
+
+        static Eval(ast: string, _env: string): string
+        {
+            ast;
+        }
+
+        static Print(exp: string): string
+        {
+            exp;
+        }
+
+        static Rep(str: string, env: string): string
+        {
+            Print(Eval(Read(str), env));
+        }
+
+		static Main(): void
+		{
+			while (true)
+			{
+				Write("user> ");
+				def line = ReadLine();
+				match (line)
+				{
+					| null => break
+					| "" => continue
+					| _ => WriteLine(Rep(line, null))
+				}
+			}
+		}
+	}
+}

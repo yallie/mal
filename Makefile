@@ -11,7 +11,7 @@ PYTHON = python
 #
 
 IMPLS = awk bash c clojure coffee cpp crystal cs erlang elixir es6 factor forth fsharp go groovy \
-	haskell java julia js lua make mal ocaml matlab miniMAL nim \
+	haskell java julia js lua make mal ocaml matlab miniMAL nemerle nim \
 	perl php ps python r racket rpython ruby rust scala swift vb guile
 
 step0 = step0_repl
