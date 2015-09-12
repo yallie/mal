@@ -5,7 +5,10 @@ namespace Mal
 {
 	public variant MalValue
 	{
-		| Value { value : string }
-		| List  { list  : List[string] }
+		| Integer { value : int }
+		| Symbol { value : string }
+		| Atom { value : string }
+		| List { list : List[MalValue] }
+		| Unknown { text : string }
 	}
 }

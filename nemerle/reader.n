@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Nemerle.Text;
 
 namespace Mal
 {
@@ -30,26 +31,42 @@ namespace Mal
 			result
 		}
 
-		public Next() : string
+		private Next() : string
 		{
 			def i = index;
 			index++;
 			tokens[i];
 		}
 
-		public Peek() : string
+		private Skip(token : string) : void
+		{
+			def skipped = Next();
+			when (skipped != token)
+			{
+				throw Exception("Expected " + token + ", got " + skipped);
+			}
+		}
+
+		private Peek() : string
 		{
 			tokens[index];
 		}
 
-		public ReadAtom() : object
+		private ReadAtom() : MalValue
 		{
-			Next()
+			def token = Next();
+			regexp match (token)
+			{
+				| @"\d+" => MalValue.Integer(Convert.ToInt32(token))
+				| @"[-+/*%=]" => MalValue.Symbol(token)
+				| @"\w+" => MalValue.Atom(token)
+				| _ => MalValue.Unknown(token)
+			}
 		}
 
-		public ReadList() : List[object]
+		private ReadList() : MalValue
 		{
-			_ = Next(); // skip "("
+			Skip("(");
 
 			def result = List();
 			def loop() : void
@@ -57,16 +74,16 @@ namespace Mal
 				def token = Peek();
 				match (token)
 				{
-					| ")" => _ = Next(); // skip ")"
+					| ")" => Skip(")");
 					| _ => result.Add(ReadForm()); loop()
 				}
 			}
 
 			loop();
-			result
+			MalValue.List(result)
 		}
 
-		public ReadForm() : object
+		public ReadForm() : MalValue
 		{
 			def token = Peek();
 			match (token)
@@ -78,31 +95,13 @@ namespace Mal
 
 	}
 
-	/* Tests for Reader:
+	/*/ Test for Reader:
 	class Program
 	{
-		// tokenizer
-		static _Main() : void
-		{
-			def src = "(def plus2(x) (+ x 2))";
-			def r = Reader(src);
-			def loop()
-			{
-				def token = r.Next();
-				when (!string.IsNullOrWhiteSpace(token))
-				{
-					Console.WriteLine(token);
-					loop();
-				}
-			}
-
-			loop()
-		}
-
 		// form reader
 		static Main() : void
 		{
-			def src = "(+ 1 2 3 (* 6 (- 7 2) 8) 4 5)"; //"(def test(x) (+ x (* 2 12) (test (- x 1))))";
+			def src = "(+ 1 2 3 (* 6 (- (/ 14 7) 2) 8) 4 5)";
 			def r = Reader(src);
 			def form = r.ReadForm();
 
@@ -110,23 +109,40 @@ namespace Mal
 			{
 				match (form)
 				{
-					| lst is List[object] =>
+					| lst is MalValue.List =>
 					{
-						foreach (l in lst)
+						Console.Write(indent);
+						Console.WriteLine("(");
+
+						foreach (l in lst.list)
 						{
 							print(indent + " ", l);
 						}
+
+						Console.Write(indent);
+						Console.WriteLine(")");
 					}
-					| _ =>
+					| integer is MalValue.Integer => 
 					{
 						Console.Write(indent);
-						Console.WriteLine(form);
+						Console.WriteLine("{0} : int", integer.value);
 					}
+					| symbol is MalValue.Symbol =>
+					{
+						Console.Write(indent);
+						Console.WriteLine("{0} : symbol", symbol.value);
+					}
+					| atom is MalValue.Atom =>
+					{
+						Console.Write(indent);
+						Console.WriteLine("{0} : atom", atom.value);
+					}
+					| _ => {}
 				}
 			}
 
 			Console.WriteLine(src);
 			print("", form)
 		}
-	}*/
+	}//*/
 }
