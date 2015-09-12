@@ -1,0 +1,65 @@
+﻿using System;
+using System.Linq;
+using System.Text.RegularExpressions;
+
+namespace Mal
+{
+	public class Reader
+	{
+		public this(s : string)
+		{
+			tokens = Tokenizer(s);
+		}
+
+		mutable index = 0;
+		mutable tokens : array[string];
+
+		public Next() : string
+		{
+			def i = index;
+			index++;
+			tokens[i];
+		}
+
+		public Peek() : string
+		{
+			tokens[index];
+		}
+
+		private static Tokenizer(source : string) : array[string]
+		{
+			def rx = "[\\s,]*(~@|[\\[\\]{}()'`~^@]|\"(?:\\\\.|[^\\\\\"])*\"|;.*|[^\\s\\[\\]{}('\"`,;)]*)";
+			def m = Regex(rx).Matches(source);
+
+			// copy matches to array of strings
+			def result = array(m.Count);
+			for (mutable i = 0; i < m.Count; i++) 
+			{
+				result[i] = m[i].Value.Trim()
+			}
+
+			result
+		}
+	}
+
+	/* A simple test for Reader:
+	class Program
+	{
+		static Main() : void
+		{
+			def src = "(def plus2(x) (+ x 2))";
+			def r = Reader(src);
+			def loop()
+			{
+				def token = r.Next();
+				when (!string.IsNullOrWhiteSpace(token))
+				{
+					Console.WriteLine(token);
+					loop();
+				}
+			}
+
+			loop()
+		}
+	}*/
+}

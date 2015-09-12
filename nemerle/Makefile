@@ -4,23 +4,21 @@ NCC = "D:\Langs\Nemerle\net-4.0\ncc.exe"
 DEBUG =
 TESTS =
 
-SOURCES_BASE = types.n
+SOURCES_BASE = console.n reader.n types.n
 SOURCES_LISP = env.n
 SOURCES = $(SOURCES_BASE) $(SOURCES_LISP)
 
-OTHER_SOURCES = console.n
-
 #####################
 
-SRCS = step0_repl.n
+SRCS = step0_repl.n step1_read_print.n
 
-LIB_SRCS = $(filter-out step%,$(OTHER_SOURCES) $(SOURCES))
+LIB_SRCS = $(filter-out step%, $(SOURCES))
 
 FLAGS = $(if $(strip $(DEBUG)),-debug+,)
 
 #####################
 
-all: step0_repl.exe
+all: $(patsubst %.n,%.exe,$(SRCS))
 
 %.exe: %.n mal.dll
 	$(NCC) $(FLAGS) -r:mal.dll -out:$@ $<

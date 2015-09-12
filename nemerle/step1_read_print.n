@@ -1,0 +1,54 @@
+using System;
+using System.Console;
+using Nemerle.Collections;
+
+namespace Mal
+{
+	public class Step0_Repl
+	{
+		static Read(str: string): string
+		{
+			str;
+		}
+
+		static Eval(ast: string, _env: string): string
+		{
+			ast;
+		}
+
+		static Print(exp: string): string
+		{
+			exp;
+		}
+
+		static Rep(str: string, env: string): string
+		{
+			Print(Eval(Read(str), env));
+		}
+
+		static Main(args: array[string]): void
+		{
+			def raw = match (NList.FromArray(args))
+			{
+				| "--raw" :: _ => true
+				| _ => false
+			};
+
+			def console = ConsoleHelper(raw);
+
+			def repl() : void
+			{
+				def line = console.ReadLine("user> ");
+
+				match (line)
+				{
+					| null => {}
+					| ""   => repl()
+					| _    => WriteLine(Rep(line, null)); repl()
+				}
+			}
+
+			repl()
+		}
+	}
+}
