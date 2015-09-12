@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -14,18 +15,6 @@ namespace Mal
 		mutable index = 0;
 		mutable tokens : array[string];
 
-		public Next() : string
-		{
-			def i = index;
-			index++;
-			tokens[i];
-		}
-
-		public Peek() : string
-		{
-			tokens[index];
-		}
-
 		private static Tokenizer(source : string) : array[string]
 		{
 			def rx = "[\\s,]*(~@|[\\[\\]{}()'`~^@]|\"(?:\\\\.|[^\\\\\"])*\"|;.*|[^\\s\\[\\]{}('\"`,;)]*)";
@@ -40,12 +29,60 @@ namespace Mal
 
 			result
 		}
+
+		public Next() : string
+		{
+			def i = index;
+			index++;
+			tokens[i];
+		}
+
+		public Peek() : string
+		{
+			tokens[index];
+		}
+
+		public ReadAtom() : object
+		{
+			Next()
+		}
+
+		public ReadList() : List[object]
+		{
+			_ = Next(); // skip "("
+
+			def result = List();
+			def loop() : void
+			{
+				def token = Peek();
+				match (token)
+				{
+					| ")" => _ = Next(); // skip ")"
+					| _ => result.Add(ReadForm()); loop()
+				}
+			}
+
+			loop();
+			result
+		}
+
+		public ReadForm() : object
+		{
+			def token = Peek();
+			match (token)
+			{
+				| "(" => ReadList()
+				| _ => ReadAtom()
+			}
+		}
+
 	}
 
-	/* A simple test for Reader:
+	/* Tests for Reader:
 	class Program
 	{
-		static Main() : void
+		// tokenizer
+		static _Main() : void
 		{
 			def src = "(def plus2(x) (+ x 2))";
 			def r = Reader(src);
@@ -60,6 +97,36 @@ namespace Mal
 			}
 
 			loop()
+		}
+
+		// form reader
+		static Main() : void
+		{
+			def src = "(+ 1 2 3 (* 6 (- 7 2) 8) 4 5)"; //"(def test(x) (+ x (* 2 12) (test (- x 1))))";
+			def r = Reader(src);
+			def form = r.ReadForm();
+
+			def print(indent : string, form : object)
+			{
+				match (form)
+				{
+					| lst is List[object] =>
+					{
+						foreach (l in lst)
+						{
+							print(indent + " ", l);
+						}
+					}
+					| _ =>
+					{
+						Console.Write(indent);
+						Console.WriteLine(form);
+					}
+				}
+			}
+
+			Console.WriteLine(src);
+			print("", form)
 		}
 	}*/
 }
