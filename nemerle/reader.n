@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Console;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Nemerle.Text;
@@ -35,7 +36,7 @@ namespace Mal
 		{
 			def i = index;
 			index++;
-			tokens[i];
+			tokens[i]
 		}
 
 		private Skip(token : string) : void
@@ -43,7 +44,7 @@ namespace Mal
 			def skipped = Next();
 			when (skipped != token)
 			{
-				throw Exception("Expected " + token + ", got " + skipped);
+				throw Exception("Expected " + token + ", got " + skipped ?? "EOF");
 			}
 		}
 
@@ -111,31 +112,26 @@ namespace Mal
 				{
 					| lst is MalValue.List =>
 					{
-						Console.Write(indent);
-						Console.WriteLine("(");
+						WriteLine($"$indent(");
 
 						foreach (l in lst.list)
 						{
 							print(indent + " ", l);
 						}
 
-						Console.Write(indent);
-						Console.WriteLine(")");
+						WriteLine($"$indent)");
 					}
 					| integer is MalValue.Integer => 
 					{
-						Console.Write(indent);
-						Console.WriteLine("{0} : int", integer.value);
+						WriteLine($"$indent$(integer.value) : int");
 					}
 					| symbol is MalValue.Symbol =>
 					{
-						Console.Write(indent);
-						Console.WriteLine("{0} : symbol", symbol.value);
+						WriteLine($"$indent$(symbol.value) : symbol");
 					}
 					| atom is MalValue.Atom =>
 					{
-						Console.Write(indent);
-						Console.WriteLine("{0} : atom", atom.value);
+						WriteLine($"$indent$(atom.value) : atom");
 					}
 					| _ => {}
 				}
